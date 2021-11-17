@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LV2</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="row">
+        <div class="col-xl-7" id="svg_container">
+            <script>
+                data = {
+                    "Zupanija": {
+                        0: "Grad Zagreb",
+                        1: "Splitsko-dalmatinska",
+                        2: "Primorsko-goranska",
+                        3: "Zagreba\u010dka",
+                        4: "Osje\u010dko-baranjska",
+                        5: "Istarska",
+                        6: "Vara\u017edinska",
+                        7: "Zadarska",
+                        8: "Sisa\u010dko-moslava\u010dka",
+                        9: "Krapinsko-zagorska",
+                        10: "Vukovarsko-srijemska",
+                        11: "Me\u0111imurska",
+                        12: "Brodsko-posavska",
+                        13: "Dubrova\u010dko-neretvanska",
+                        14: "Karlova\u010dka",
+                        15: "Koprivni\u010dko-kri\u017eeva\u010dka",
+                        16: "Bjelovarsko-bilogorska",
+                        17: "\u0160ibensko-kninska",
+                        18: "Viroviti\u010dko-podravska",
+                        19: "Po\u017ee\u0161ko-slavonska",
+                        20: "Nepoznato",
+                        21: "Li\u010dko-senjska"
+                    }, "BrojKorisnika": {
+                        0: 257.573,
+                        1: 74.408,
+                        2: 64.912,
+                        3: 59.68,
+                        4: 47.031,
+                        5: 45.909,
+                        6: 33.438,
+                        7: 26.755,
+                        8: 24.945,
+                        9: 22.565,
+                        10: 22.289,
+                        11: 21.279,
+                        12: 19.819,
+                        13: 19.427,
+                        14: 18.433,
+                        15: 18.362,
+                        16: 14.912,
+                        17: 14.309,
+                        18: 10.846,
+                        19: 9.33,
+                        20: 7.341,
+                        21: 6.31
+                    }, "Udjel": {
+                        0: "30,67%",
+                        1: "8,86%",
+                        2: "7,73%",
+                        3: "7,11%",
+                        4: "5,60%",
+                        5: "5,47%",
+                        6: "3,98%",
+                        7: "3,19%",
+                        8: "2,97%",
+                        9: "2,69%",
+                        10: "2,65%",
+                        11: "2,53%",
+                        12: "2,36%",
+                        13: "2,31%",
+                        14: "2,19%",
+                        15: "2,19%",
+                        16: "1,78%",
+                        17: "1,70%",
+                        18: "1,29%",
+                        19: "1,11%",
+                        20: "0,87%",
+                        21: "0,75%"
+                    }
+                }
+                console.log(Object.values(data.BrojKorisnika));
+                console.log(Object.keys(data.BrojKorisnika).map(Number));
+                var margin = {
+                    top: 50,
+                    bottom: 80,
+                    left: 50,
+                    right: 20
+                };
+                var width = 1000 - margin.left - margin.right;
+                var height = 500 - margin.top - margin.bottom;
+                var barPadding = 4;
+                var barWidth = width / Object.keys(data.Zupanija).length - barPadding;
+
+
+                var svg = d3.select("#svg_container")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .style("background-color", "lightgray")
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                var x = d3.scaleBand().domain(Object.keys(data.BrojKorisnika).map(Number)).rangeRound([0, width]);
+                var y = d3.scaleLinear().domain([0, d3.max(Object.values(data.BrojKorisnika))]).range([height, 0]);
+                var xAxis = d3.axisBottom(x).tickValues(x.domain());
+                var yAxis = d3.axisLeft(y).ticks(Object.values(data.BrojKorisnika).length);
+
+                var colors = d3.scaleOrdinal().range(['red', 'green', 'blue', 'purple', 'yellow', 'cyan', 'darkgray', 'black', 'white', 'pink']);
+
+                svg.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis)
+                    .selectAll("text")
+                    .style("text-anchor", "middle");
+
+                svg.append("g")
+                    .append("text")
+                    .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("Županija");
+
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis)
+
+                svg.append("g")
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x", 0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Broj korisnika");
+
+                svg.append("g")
+                    .append("text")
+                    .attr("x", (width / 2))
+                    .attr("y", 0 - (margin.top / 2))
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "1.5em")
+                    .text("Korisnici sustava e-Građani po županijama")
+
+                var barchart = svg.selectAll("rect")
+                    .data(Object.values(data.BrojKorisnika))
+                    .enter()
+                    .append("rect")
+                    .attr("x", function (d, i) { return x(i); })
+                    .attr("y", y)
+                    .attr("height", function (d) { return height - y(d); })
+                    .attr("width", barWidth)
+                    .attr("fill", function (d, i) { return colors(i) })
+            </script>
+        </div>
+        <div class="col-xl-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Legenda</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">0 - Grad Zagreb</li>
+                                <li class="list-group-item">1 - Splitsko-dalmatinska</li>
+                                <li class="list-group-item">2 - Primorsko-goranska</li>
+                                <li class="list-group-item">3 - Zagrebačka</li>
+                                <li class="list-group-item">4 - Osječko-baranjska</li>
+                                <li class="list-group-item">5 - Istarska</li>
+                                <li class="list-group-item">6 - Varaždinska</li>
+                                <li class="list-group-item">7 - Zadarska</li>
+                                <li class="list-group-item">8 - Sisačko-moslovačka</li>
+                                <li class="list-group-item">9 - Krapinsko-zagorska</li>
+                                <li class="list-group-item">10 - Vukovarsko-srijemska</li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-6">
+                            <ul class="list-group">
+                                <li class="list-group-item">11 - Međimurska</li>
+                                <li class="list-group-item">12 - Brodsko-posavska</li>
+                                <li class="list-group-item">13 - Dubrovačko-neretvanska</li>
+                                <li class="list-group-item">14 - Karlovačka</li>
+                                <li class="list-group-item">15 - Koprivničko-križevačka</li>
+                                <li class="list-group-item">16 - Bjelovarsko-bilogorska</li>
+                                <li class="list-group-item">17 - Šibensko-kninska</li>
+                                <li class="list-group-item">18 - Virovitičko-podravska</li>
+                                <li class="list-group-item">19 - Požeško-slavonska</li>
+                                <li class="list-group-item">20 - Nepoznato</li>
+                                <li class="list-group-item">21 - Ličko-senjska</li>
+                            </ul>
+                        </div>
+                        <script>
+                            var temp = "border-width: thick; border-color: ";
+                            d3.selectAll("li").data([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]).attr("style", function (d, i) { return temp + colors(i) });
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-12 mt-2" id="svg_container2">
+            <script>
+                data1 = {
+                    "0": {
+                        "0": 0.0280378689,
+                        "1": 0.5518955433,
+                        "2": 0.8512988665,
+                        "3": 0.3968983578,
+                        "4": 0.249146832,
+                        "5": 0.2093681998,
+                        "6": 0.5727880831,
+                        "7": 0.1201912418,
+                        "8": 0.8628530742,
+                        "9": 0.5333268858,
+                        "10": 0.3687153161,
+                        "11": 0.6538727759,
+                        "12": 0.8078153887,
+                        "13": 0.4197556208,
+                        "14": 0.377651126,
+                        "15": 0.3337643621,
+                        "16": 0.5267649565,
+                        "17": 0.7175105002,
+                        "18": 0.9864028735,
+                        "19": 0.6102315664,
+                        "20": 0.2295322259,
+                        "21": 0.8339455801,
+                        "22": 0.930938561,
+                        "23": 0.0728939006,
+                        "24": 0.425135286,
+                        "25": 0.6971020868,
+                        "26": 0.6293313586,
+                        "27": 0.3971657321,
+                        "28": 0.6287390032,
+                        "29": 0.3793754276,
+                        "30": 0.7493823758,
+                        "31": 0.666131164,
+                        "32": 0.7389671035,
+                        "33": 0.6129762618,
+                        "34": 0.4911304955,
+                        "35": 0.4124688468,
+                        "36": 0.9850433558,
+                        "37": 0.2360797011,
+                        "38": 0.7613893612,
+                        "39": 0.1237601776,
+                        "40": 0.832591392,
+                        "41": 0.7360319489,
+                        "42": 0.7796671841,
+                        "43": 0.4787814749,
+                        "44": 0.5084159912,
+                        "45": 0.637229801,
+                        "46": 0.6179689452,
+                        "47": 0.1868821914,
+                        "48": 0.7209582149,
+                        "49": 0.8644251343,
+                        "50": 0.5254868517,
+                        "51": 0.6466381194,
+                        "52": 0.7957904081,
+                        "53": 0.8494974208,
+                        "54": 0.878321115,
+                        "55": 0.7106119825,
+                        "56": 0.3187087849,
+                        "57": 0.7867898896,
+                        "58": 0.3308140032,
+                        "59": 0.387418028,
+                        "60": 0.1591088911,
+                        "61": 0.5356251733,
+                        "62": 0.4170890851,
+                        "63": 0.8755763111,
+                        "64": 0.4263469153,
+                        "65": 0.241232969,
+                        "66": 0.9303117638,
+                        "67": 0.5157697331,
+                        "68": 0.468056651,
+                        "69": 0.4296852348,
+                        "70": 0.6686992662,
+                        "71": 0.9665469003,
+                        "72": 0.9681020126,
+                        "73": 0.6141797443,
+                        "74": 0.0371462335,
+                        "75": 0.3419359343,
+                        "76": 0.1939450036,
+                        "77": 0.4578738771,
+                        "78": 0.9147250627,
+                        "79": 0.0556947323,
+                        "80": 0.4343741528,
+                        "81": 0.2877075594,
+                        "82": 0.9559092216,
+                        "83": 0.0097537512,
+                        "84": 0.5232755766,
+                        "85": 0.6926092601,
+                        "86": 0.979032414,
+                        "87": 0.1402672616,
+                        "88": 0.1600033296,
+                        "89": 0.7907210674,
+                        "90": 0.9069615512,
+                        "91": 0.8128246006,
+                        "92": 0.8882836481,
+                        "93": 0.052874965,
+                        "94": 0.4600339096,
+                        "95": 0.681255983,
+                        "96": 0.6539152468,
+                        "97": 0.9685057035,
+                        "98": 0.1318570794,
+                        "99": 0.3832844887
+                    }
+                }
+                data2 = {
+                    "0": {
+                        "0": 0.4264990092,
+                        "1": 0.0305212559,
+                        "2": 0.9704347047,
+                        "3": 0.160641736,
+                        "4": 0.60367127,
+                        "5": 0.8602696223,
+                        "6": 0.4738176526,
+                        "7": 0.3436766084,
+                        "8": 0.7263490199,
+                        "9": 0.3204304712,
+                        "10": 0.5548425695,
+                        "11": 0.3800567445,
+                        "12": 0.6868252775,
+                        "13": 0.656447787,
+                        "14": 0.6649218386,
+                        "15": 0.0432501555,
+                        "16": 0.8106665989,
+                        "17": 0.1419500889,
+                        "18": 0.6263884743,
+                        "19": 0.929287531,
+                        "20": 0.1624389894,
+                        "21": 0.1958629022,
+                        "22": 0.1238140287,
+                        "23": 0.4974621611,
+                        "24": 0.6886793833,
+                        "25": 0.8087987492,
+                        "26": 0.0000835236,
+                        "27": 0.7016469382,
+                        "28": 0.0323093473,
+                        "29": 0.583914273,
+                        "30": 0.1587239176,
+                        "31": 0.3142217685,
+                        "32": 0.6669182155,
+                        "33": 0.5746582399,
+                        "34": 0.8239924985,
+                        "35": 0.5421083712,
+                        "36": 0.3472196064,
+                        "37": 0.1282328464,
+                        "38": 0.6865651407,
+                        "39": 0.7341773295,
+                        "40": 0.0385454066,
+                        "41": 0.6877911504,
+                        "42": 0.007136976,
+                        "43": 0.5153227048,
+                        "44": 0.5631738278,
+                        "45": 0.3569055069,
+                        "46": 0.6960215071,
+                        "47": 0.0108422227,
+                        "48": 0.1184463061,
+                        "49": 0.5794494614,
+                        "50": 0.4357093064,
+                        "51": 0.6796601204,
+                        "52": 0.4199136068,
+                        "53": 0.1044500008,
+                        "54": 0.315452007,
+                        "55": 0.645515792,
+                        "56": 0.7895303797,
+                        "57": 0.131291479,
+                        "58": 0.3993920975,
+                        "59": 0.6976495525,
+                        "60": 0.2685246338,
+                        "61": 0.761036231,
+                        "62": 0.5216675554,
+                        "63": 0.3593234427,
+                        "64": 0.6658552415,
+                        "65": 0.6603351115,
+                        "66": 0.8068750512,
+                        "67": 0.5310254063,
+                        "68": 0.5074796308,
+                        "69": 0.816234109,
+                        "70": 0.3050470519,
+                        "71": 0.9953843733,
+                        "72": 0.5765594012,
+                        "73": 0.8915551425,
+                        "74": 0.3624758112,
+                        "75": 0.3902463082,
+                        "76": 0.9054525006,
+                        "77": 0.9600677139,
+                        "78": 0.2073604845,
+                        "79": 0.7811454221,
+                        "80": 0.9297146806,
+                        "81": 0.7685855243,
+                        "82": 0.5120106232,
+                        "83": 0.9601802254,
+                        "84": 0.0770772391,
+                        "85": 0.7985941454,
+                        "86": 0.6837225993,
+                        "87": 0.8659507857,
+                        "88": 0.7070436769,
+                        "89": 0.0989471902,
+                        "90": 0.2591647336,
+                        "91": 0.712988162,
+                        "92": 0.2970615905,
+                        "93": 0.5357862324,
+                        "94": 0.9196454387,
+                        "95": 0.3958056413,
+                        "96": 0.7206012006,
+                        "97": 0.6226995395,
+                        "98": 0.007786265,
+                        "99": 0.9893491968
+                    }
+                }
+                data3 = {
+                    "0": {
+                        "0": 0.0479354484,
+                        "1": 0.4041874379,
+                        "2": 0.6229554257,
+                        "3": 0.1203409617,
+                        "4": 0.3839493681,
+                        "5": 0.0412983273,
+                        "6": 0.8949954895,
+                        "7": 0.4225242021,
+                        "8": 0.8523734656,
+                        "9": 0.4460182752,
+                        "10": 0.0219304359,
+                        "11": 0.7809368479,
+                        "12": 0.9907244735,
+                        "13": 0.4689694824,
+                        "14": 0.8965579885,
+                        "15": 0.5239689691,
+                        "16": 0.1173547673,
+                        "17": 0.976821394,
+                        "18": 0.1718117066,
+                        "19": 0.4447804576,
+                        "20": 0.9251656991,
+                        "21": 0.9860895511,
+                        "22": 0.5014126973,
+                        "23": 0.4505325142,
+                        "24": 0.075026595,
+                        "25": 0.9830667387,
+                        "26": 0.1951646445,
+                        "27": 0.0221988022,
+                        "28": 0.8076124802,
+                        "29": 0.5494812621,
+                        "30": 0.400435127,
+                        "31": 0.0369890525,
+                        "32": 0.2889968384,
+                        "33": 0.8607360229,
+                        "34": 0.129376081,
+                        "35": 0.6865401178,
+                        "36": 0.8292769062,
+                        "37": 0.8265179828,
+                        "38": 0.0653529458,
+                        "39": 0.3760291495,
+                        "40": 0.2926186806,
+                        "41": 0.9477287589,
+                        "42": 0.2993598824,
+                        "43": 0.5053213241,
+                        "44": 0.2511530037,
+                        "45": 0.3318419115,
+                        "46": 0.9203370565,
+                        "47": 0.7425082278,
+                        "48": 0.2657765592,
+                        "49": 0.1154258452,
+                        "50": 0.9347734963,
+                        "51": 0.1561347188,
+                        "52": 0.6312239349,
+                        "53": 0.8909654732,
+                        "54": 0.2760242378,
+                        "55": 0.870583816,
+                        "56": 0.1278575879,
+                        "57": 0.8664182345,
+                        "58": 0.8983137499,
+                        "59": 0.4869684837,
+                        "60": 0.6063171863,
+                        "61": 0.134927541,
+                        "62": 0.1574947704,
+                        "63": 0.5668919178,
+                        "64": 0.5563404267,
+                        "65": 0.813239779,
+                        "66": 0.5669990629,
+                        "67": 0.275187172,
+                        "68": 0.998838164,
+                        "69": 0.4126242566,
+                        "70": 0.9547571346,
+                        "71": 0.2321425685,
+                        "72": 0.4653730722,
+                        "73": 0.1933759614,
+                        "74": 0.2969564128,
+                        "75": 0.4670064281,
+                        "76": 0.2941565482,
+                        "77": 0.2826043607,
+                        "78": 0.6954138652,
+                        "79": 0.2625891336,
+                        "80": 0.2577063176,
+                        "81": 0.8418400789,
+                        "82": 0.888028269,
+                        "83": 0.8089727657,
+                        "84": 0.1917557218,
+                        "85": 0.7170923313,
+                        "86": 0.3658588433,
+                        "87": 0.5247081636,
+                        "88": 0.0946605723,
+                        "89": 0.2728534682,
+                        "90": 0.4268240971,
+                        "91": 0.1729971885,
+                        "92": 0.8305381166,
+                        "93": 0.3807651411,
+                        "94": 0.6691418423,
+                        "95": 0.6135161241,
+                        "96": 0.8185385949,
+                        "97": 0.179313133,
+                        "98": 0.7826875531,
+                        "99": 0.4507236501
+                    }
+                }
+                var margin = {
+                    top: 50,
+                    bottom: 80,
+                    left: 50,
+                    right: 20
+                };
+                var width = 1000 - margin.left - margin.right;
+                var height = 500 - margin.top - margin.bottom;
+                var svg = d3.select("#svg_container2")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .style("background-color", "lightgray")
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                var x = d3.scaleLinear().domain([0, d3.max(Object.keys(data1[0]))]).range([0, width]);
+                var y = d3.scaleLinear().domain([0, d3.max(Object.values(data1[0]))]).range([height, 0]);
+                var valueLine1 = d3.line().x(function (d, i) { return x(i) }).y(function (d) { return y(d) });
+                var valueLine2 = d3.line().x(function (d, i) { return x(i) }).y(function (d) { return y(d) });
+                var valueLine3 = d3.line().x(function (d, i) { return x(i) }).y(function (d) { return y(d) });
+                svg.append("path")
+                    .attr("class", "line")
+                    .style("stroke", "blue")
+                    .style("fill", "none")
+                    .style("stroke-width", "2")
+                    .attr("d", valueLine1(Object.values(data1[0])));
+
+                svg.append("path")
+                    .data(Object.values(data2[0]))
+                    .attr("class", "line")
+                    .style("stroke", "red")
+                    .style("stroke-width", "2")
+                    .style("fill", "none")
+                    .attr("d", valueLine2(Object.values(data2[0])));
+
+                svg.append("path")
+                    .data(Object.values(data3[0]))
+                    .attr("class", "line")
+                    .style("stroke", "purple")
+                    .style("fill", "none")
+                    .style("stroke-width", "2")
+                    .attr("d", valueLine3(Object.values(data3[0])));
+
+                svg.append("g")
+                    .attr("transform", "translate (0," + height + ")")
+                    .call(d3.axisBottom(x))
+                    .selectAll("text")
+                    .style("text-anchor", "middle");
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+
+                svg.append("g")
+                    .append("text")
+                    .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("Korak");
+
+                svg.append("g")
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x", 0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Broj");
+
+                svg.append("g")
+                    .append("text")
+                    .attr("x", (width / 2))
+                    .attr("y", 0 - (margin.top / 2))
+                    .attr("text-anchor", "middle")
+                    .style("font-size", "1.5em")
+                    .text("Nasumicni brojevi - sad u linijskom grafu")
+            </script>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-12" id="svg_container3">
+            <script>
+                data = [
+                    {
+                        "date": "1-May-12",
+                        "value": 14
+                    },
+                    {
+                        "date": "30-Apr-12",
+                        "value": 15
+                    },
+                    {
+                        "date": "27-Apr-12",
+                        "value": 21
+                    },
+                    {
+                        "date": "26-Apr-12",
+                        "value": 34
+                    },
+                    {
+                        "date": "25-Apr-12",
+                        "value": 45
+                    },
+                    {
+                        "date": "24-Apr-12",
+                        "value": 44
+                    },
+                    {
+                        "date": "23-Apr-12",
+                        "value": 43
+                    },
+                    {
+                        "date": "20-Apr-12",
+                        "value": 44
+                    },
+                    {
+                        "date": "19-Apr-12",
+                        "value": 56
+                    },
+                    {
+                        "date": "18-Apr-12",
+                        "value": 47
+                    },
+                    {
+                        "date": "17-Apr-12",
+                        "value": 42
+                    },
+                    {
+                        "date": "16-Apr-12",
+                        "value": 30
+                    },
+                    {
+                        "date": "13-Apr-12",
+                        "value": 15
+                    },
+                    {
+                        "date": "12-Apr-12",
+                        "value": 3
+                    },
+                    {
+                        "date": "11-Apr-12",
+                        "value": 8
+                    },
+                    {
+                        "date": "10-Apr-12",
+                        "value": 12
+                    },
+                    {
+                        "date": "9-Apr-12",
+                        "value": 35
+                    },
+                    {
+                        "date": "5-Apr-12",
+                        "value": 70
+                    },
+                    {
+                        "date": "4-Apr-12",
+                        "value": 100
+                    },
+                    {
+                        "date": "3-Apr-12",
+                        "value": 99
+                    },
+                    {
+                        "date": "2-Apr-12",
+                        "value": 97
+                    },
+                    {
+                        "date": "30-Mar-12",
+                        "value": 55
+                    },
+                    {
+                        "date": "29-Mar-12",
+                        "value": 43
+                    },
+                    {
+                        "date": "28-Mar-12",
+                        "value": 32
+                    },
+                    {
+                        "date": "27-Mar-12",
+                        "value": 16
+                    },
+                    {
+                        "date": "26-Mar-12",
+                        "value": 8
+                    }
+                ]
+                var width = 1000 - margin.left - margin.right;
+                var height = 500 - margin.top - margin.bottom;
+                var svg = d3.select("#svg_container2")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .style("background-color", "lightgray")
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                var parseTime = d3.timeParse("%d-%b-%y");
+
+                var x = d3.scaleTime().range([0, width]);
+                var y = d3.scaleLinear().range([height, 0]);
+
+                var valueLine = d3.line()
+                    .x(function (d) { return x(d.date) })
+                    .y(function (d) { return y(d.value) });
+
+                Object.keys(data).forEach(function(key){
+                    data[key].date = parseTime(data[key].date);
+                    data[key].value = +data[key].value;
+                })
+                //console.log(data);
+
+                x.domain(d3.extent(data, function (d) { return d.date; }));
+                y.domain([0, d3.max(data, function(d) {return d.value;})]);
+                //console.log(valueLine(data));
+
+                svg.append("path")
+                    .attr("class", "line")
+                    .style("stroke", "green")
+                    .style("fill", "none")
+                    .style("stroke-width", "2")
+                    .attr("d", valueLine(data));
+
+                svg.append("g")
+                    .attr("transform", "translate (0," + height + ")")
+                    .call(d3.axisBottom(x));
+
+                svg.append("g")
+                    .call(d3.axisLeft(y));
+                
+                svg.append("g")
+                    .append("text")
+                    .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 20) + ")")
+                    .style("text-anchor", "middle")
+                    .text("Dan");
+
+                svg.append("g")
+                    .append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 0 - margin.left)
+                    .attr("x", 0 - (height / 2))
+                    .attr("dy", "1em")
+                    .style("text-anchor", "middle")
+                    .text("Vrijednost");
+            </script>
+        </div>
+    </div>
+</body>
+
+</html>

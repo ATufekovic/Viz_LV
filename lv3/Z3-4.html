@@ -1,0 +1,102 @@
+<!--
+    U SVG umetnuti tri kružnice koje će biti pri vrhu slike.
+    Pri dnu, a ispod svake od kružnica, umetnuti tri pravokutnika koji će
+    predstavljati različite materijale i to redom krutu tvar, elastičnu tvar i tekućinu.
+    Simulirati slobodan pad kugli i njihovu reakciju prilikom sudara s pravokutnicima.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z3-4</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <script>
+        svg = d3.select("body")
+            .append("svg")
+            .attr("width", 800)
+            .attr("height", 800)
+            .style("background-color", "lightblue");
+        
+        rect_solid = svg.append("rect")
+            .attr("width", 250)
+            .attr("height", 100)
+            .attr("x", 0)
+            .attr("y", svg.attr("height") - 100)
+            .style("fill", "gray");
+        
+        rect_elastic = svg.append("rect")
+            .attr("width", 250)
+            .attr("height", 100)
+            .attr("x", 275)
+            .attr("y", svg.attr("height") - 100)
+            .style("fill", "yellow");
+        
+        rect_liquid = svg.append("rect")
+            .attr("width", 250)
+            .attr("height", 100)
+            .attr("x", 550)
+            .attr("y", svg.attr("height") - 100)
+            .style("fill", "blue");
+        
+        circle_solid = svg.append("circle")
+            .attr("r", 50)
+            .attr("cx", parseInt(rect_solid.attr("x")) + parseInt(rect_solid.attr("width")/2))
+            .attr("cy", 60)
+            .style("fill", "red");
+        
+        circle_elastic = svg.append("circle")
+            .attr("r", 50)
+            .attr("cx", parseInt(rect_elastic.attr("x")) + parseInt(rect_elastic.attr("width")/2))
+            .attr("cy", 60)
+            .style("fill", "red");
+        
+        circle_liquid = svg.append("circle")
+            .attr("r", 50)
+            .attr("cx", parseInt(rect_liquid.attr("x")) + parseInt(rect_liquid.attr("width")/2))
+            .attr("cy", 60)
+            .style("fill", "red");
+        
+        function bounce(h) {
+            if (!arguments.length) h = 0.25;
+            var b0 = 1 - h,
+            b1 = b0 * (1 - b0) + b0,
+            b2 = b0 * (1 - b1) + b1,
+            x0 = 2 * Math.sqrt(h),
+            x1 = x0 * Math.sqrt(h),
+            x2 = x1 * Math.sqrt(h),
+            t0 = 1 / (1 + x0 + x1 + x2),
+            t1 = t0 + t0 * x0,
+            t2 = t1 + t0 * x1,
+            m0 = t0 + t0 * x0 / 2,
+            m1 = t1 + t0 * x1 / 2,
+            m2 = t2 + t0 * x2 / 2,
+            a = 1 / (t0 * t0);
+            return function(t) {
+                return t >= 1 ? 1
+                    : t < t0 ? a * t * t
+                    : t < t1 ? a * (t -= m0) * t + b0
+                    : t < t2 ? a * (t -= m1) * t + b1
+                    : a * (t -= m2) * t + b2;
+            };
+        }
+
+        circle_solid.transition()
+            .ease(bounce(0.15))
+            .duration(3120)
+            .attr("cy", parseInt(svg.attr("height")) - parseInt(rect_solid.attr("height")) - parseInt(circle_solid.attr("r")));
+        
+        circle_elastic.transition()
+            .ease(bounce(0.4))
+            .duration(5000)
+            .attr("cy", parseInt(svg.attr("height")) - parseInt(rect_elastic.attr("height")) - parseInt(circle_elastic.attr("r")));
+        
+        circle_liquid.transition()
+            .ease(d3.easeElasticOut)
+            .duration(28000)
+            .attr("cy", parseInt(svg.attr("height")) - parseInt(rect_liquid.attr("height")));
+    </script>
+</body>
+</html>

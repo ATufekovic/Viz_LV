@@ -1,0 +1,73 @@
+<!--
+    Izraditi  simulaciju  sunčevog  sustava  s  pripadajućim  rotacijama  planeta  primjenom  biblioteke D3.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z3-5</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <script>
+        var globalSpeed = 0.1;
+        var globalSize = 0.5;
+        var data = [
+            {"size":15, "speed":0.24, "color":"#908f7e", "rotation":0},
+            {"size":15, "speed":0.6, "color":"#ebc483", "rotation":0},
+            {"size":20, "speed":1, "color":"#4fa2bf", "rotation":0},
+            {"size":15, "speed":2, "color": "#aa6646", "rotation":0},
+            {"size":40, "speed":12, "color":"#fde4d8", "rotation":0},
+            {"size":40, "speed":30, "color":"#bf9a7c", "rotation":0},
+            {"size":30, "speed":84, "color":"#97b6c4", "rotation":0},
+            {"size":30, "speed":164, "color":"#4175a9", "rotation":0},
+        ]
+        svg = d3.select("body")
+            .append("svg")
+            .attr("width", 800)
+            .attr("height", 800)
+            .style("background-color", "black")
+            .style("margin","20px");
+        
+        sun = svg.append("circle")
+            .attr("cx", parseInt(svg.attr("width"))/2)
+            .attr("cy", parseInt(svg.attr("height"))/2)
+            .attr("r", 50)
+            .style("fill", "yellow")
+            .style("stroke", "orange")
+            .style("stroke-width", "5");
+        
+        for(var i = 0; i<8 ; i++){
+            svg.append("circle")
+            .attr("cx", parseInt(svg.attr("width"))/2)
+            .attr("cy", parseInt(svg.attr("height"))/2)
+            .attr("r", 100+i*40)
+            .style("fill-opacity", "0")
+            .style("stroke", "white")
+            .style("stroke-dasharray", "10, 10");
+        }
+
+        function rotatePlanet(planet, i){
+            data[i].rotation += data[i].speed*globalSpeed;
+            planet.transition()
+                .duration(30)
+                .attr("transform", "rotate("+ data[i].rotation +", 400, 400)")
+                .on("end", function(){
+                    rotatePlanet(planet, i);
+                });
+        }
+
+        for(var i = 0; i < 8; i++){
+            planet = svg.append("circle")
+                .attr("cx", parseInt(svg.attr("width"))/2 + 100 + i*40)
+                .attr("cy", parseInt(svg.attr("height"))/2)
+                .attr("r", data[i].size * globalSize)
+                .style("fill", data[i].color);
+            rotatePlanet(planet, i);
+        }
+        d3.select("body")
+            .style("background-color", "black");
+    </script>
+</body>
+</html>

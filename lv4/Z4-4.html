@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z4-4</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <style>
+        .node circle {
+            fill: #fff;
+            stroke: steelblue;
+        }
+
+        .node {
+            font: 10px sans-seriff;
+        }
+
+        .link {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 1.5px;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        var data = {
+            "name": "flare",
+            "id": 0,
+            "childrenID": [1],
+            "children": [
+                {
+                    "name": "analytics",
+                    "id": 1,
+                    "childrenID": [2, 6],
+                    "children": [
+                        {
+                            "name": "cluster",
+                            "id": 2,
+                            "childrenID": [3, 4, 5],
+                            "children": [
+                                { "name": "AgglomerativeCluster", "id": 3, "childrenID": [], "size": 3938 },
+                                { "name": "CommunityStructure", "id": 4, "childrenID": [], "size": 3812 },
+                                { "name": "MergeEdge", "id": 5, "childrenID": [], "size": 743 }
+                            ]
+                        },
+                        {
+                            "name": "graph",
+                            "id": 6,
+                            "childrenID": [7, 8],
+                            "children": [
+                                { "name": "BetwennesCentrality", "id": 7, "childrenID": [], "size": 3534 },
+                                { "name": "LinkDistance", "id": 8, "childrenID": [], "size": 5731 }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+        function hideLink(id) {
+            link = d3.select("#link-" + id);
+            if (link.attr("display") == null || link.attr("display") == "block") {
+                link.attr("display", "none");
+            }
+            else {
+                link.attr("display", "block");
+            }
+        }
+        function hideNode(id) {
+            node = d3.select("#node-" + id);
+            if (node.attr("display") == null || node.attr("display") == "block") {
+                node.attr("display", "none");
+            }
+            else {
+                node.attr("display", "block");
+            }
+        }
+        function hideText(id) {
+            text = d3.select("#text-" + id);
+            if (text.attr("display") == null || text.attr("display") == "block") {
+                text.attr("display", "none")
+            }
+            else {
+                text.attr("display", "block");
+            }
+        }
+
+
+        function hideDescendants(d) {
+            if (d.data.childrenID.length > 0) {
+                d.data.childrenID.forEach(element => {
+                    console.log("elementID:" + element);
+                    var next;
+                    d.data.children.forEach(child => {
+                        if (child.id == element) {
+                            next = child;
+                            console.log("Chosen next:");
+                            console.log(next);
+                            hideDescendantsAndSelf(element, next);
+                        }
+                        else {
+                            next = "Not found";
+                        }
+                    });
+                });
+            }
+        };
+        function hideDescendantsAndSelf(id, data) {
+            hideText(id);
+            hideNode(id);
+            hideLink(id);
+            if (data.childrenID.length > 0) {
+                data.childrenID.forEach(element => {
+                    console.log("elementID:" + element);
+                    var next;
+                    data.children.forEach(child => {
+                        if (child.id == element) {
+                            next = child;
+                            console.log("Chosen next:");
+                            console.log(next);
+                            hideDescendantsAndSelf(element, next);
+                        }
+                        else {
+                            next = "Not found"
+                        }
+                    })
+                })
+            }
+        };
+
+        var width = 900;
+        var height = 900;
+
+        var cluster = d3.cluster()
+            .size([height - 100, width - 100]);
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+        var container = svg.append("g")
+            .attr("transform", "translate(40, 40)");
+
+        var root = d3.hierarchy(data);
+        cluster(root);
+
+        links = container.selectAll("line.link")
+            .data(root.links())
+            .enter()
+            .append("line")
+            .classed("link", true)
+            .attr("x1", function (d) { return d.source.x; })
+            .attr("y1", function (d) { return d.source.y; })
+            .attr("x2", function (d) { return d.target.x; })
+            .attr("y2", function (d) { return d.target.y; })
+            .attr("id", function (d, i) { return "link-" + d.target.data.id; });
+
+        nodes = container.selectAll("circle.nodes")
+            .data(root.descendants())
+            .enter()
+            .append("circle")
+            .classed("node", true)
+            .attr("id", function (d) { return "node-" + d.data.id; })
+            .attr("cx", function (d) { return d.x; })
+            .attr("cy", function (d) { return d.y; })
+            .attr("r", 10)
+            .on("click", function (d) {
+                hideDescendants(d);
+            });
+
+        texts = container.selectAll("text")
+            .data(root.descendants())
+            .enter()
+            .append("text")
+            .attr("transform", function (d) { return "translate(" + (d.x) + ", " + (d.y - 15) + ") rotate(-15)"; })
+            .attr("text-anchor", "middle")
+            .attr("id", function (d) { return "text-" + d.data.id; })
+            .text(function (d) { return d.data.name; });
+    </script>
+</body>
+
+</html>

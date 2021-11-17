@@ -1,0 +1,57 @@
+<!--
+    Izmijeniti kod prethodnog zadatka na način da se omogući autonomno dodavanje 10 kružnica koje
+    će se ponašati slično kao i u prethodnom zadatku, ali sa slučajno odabranom vrijednošću trajanja svake od tranzicija.
+    Nakon isteka posljednje tranzicije postupak je potrebno ponoviti s novim vrijednostima
+    vremena i položaja te početnim vrijednostima radijusa.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z3-2</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <script>
+        var width = 800;
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width",width)
+            .attr("height","800")
+            .style("background-color","lightblue");
+
+        function moveCircle(circle){
+            circle.transition()
+                .duration(Math.ceil((Math.random()*3+2)*1000))
+                .style("fill-opacity","0")
+                .transition()
+                .duration(Math.ceil((Math.random()*3+2)*1000))
+                .style("fill-opacity","1")
+                .transition()
+                .duration(Math.ceil((Math.random()*3+2)*1000))
+                .attr("r", width/2)
+                .style("fill-opacity","0")
+                .transition()
+                .duration(Math.ceil((Math.random()*3+2)*1000))
+                .attr("r", "100")
+                .on("end",function(){
+                    moveCircle(circle);
+                });
+        }        
+        
+        for(var i = 0; i < 5; i++){
+            for(var j = 0; j < 2; j++){
+                var circle = svg.append("circle")
+                    .attr("cx",160*(i+0.5))
+                    .attr("cy",200*(j+1))
+                    .attr("r","100")
+                    .style("fill-opacity","0")
+                    .style("stroke","red")
+                    .style("stroke-width","3");
+                moveCircle(circle);
+            }
+        }
+    </script>
+</body>
+</html>

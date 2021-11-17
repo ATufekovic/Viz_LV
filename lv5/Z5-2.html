@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z5-2</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.5.0/dist/svg-pan-zoom.min.js"></script>
+</head>
+
+<body>
+    <script>
+        var width = 900;
+        var height = 900;
+        var projection = d3.geoAlbers().parallels([40, 50])
+            .center([0.5, 44.5])
+            .rotate([-16, 0])
+            .scale(10000)
+            .translate([width / 2, height / 2]);
+        var path = d3.geoPath().projection(projection);
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("id", "svg_pan_zoom")
+            .style("background", "lightgray");
+
+        var tooltip = d3.select("body")
+            .append("div")
+            .style("opacity", 0)
+            .style("width", 600)
+            .style("display", "inline-block");
+
+        fetch("cro_regv3.json")
+            .then(response => response.json())
+            .then(json => {
+                var data = topojson.feature(json, json.objects.layer1);
+                var states = svg.selectAll("path.county")
+                    .data(data.features)
+                    .enter()
+                    .append("path")
+                    .attr("class", "county")
+                    .attr("id", function (d) { return d.id; })
+                    .attr("d", path)
+                    .style("fill", "lightblue")
+                    .style("stroke", "navy")
+                    .style("stroke-width", 1)
+                    .style("stroke-opacity", 1)
+                    .on("mouseover", function (d) {
+                        console.log(d.properties.name);
+                        var tooltip_tip = "<h4>" + d.properties.name + "</h4>";
+                        tooltip.html(tooltip_tip);
+
+                        tooltip.transition()
+                            .duration(100)
+                            .style("opacity", 1);
+                    })
+                    .on("mouseout", function (d) {
+                        tooltip.transition()
+                            .duration(1000)
+                            .style("opacity", 0);
+                    });
+                var zoomSVG = svgPanZoom('#svg_pan_zoom', {
+                    zoomEnabled: true,
+                    controlIconsEnabled: true,
+                    fit: true,
+                    center: true
+                });
+            });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z5-4</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+</head>
+
+<body>
+    <script>
+        var hr_stats = [
+            {
+                "Županija": "Dubrovačko-neretvanska",
+                "Sjedište": "Dubrovnik",
+                "Površina (km2)": 1783,
+                "Stanovnistvo": 122783
+            },
+            {
+                "Županija": "Šibensko-kninska",
+                "Sjedište": "Šibenik",
+                "Površina (km2)": 2939,
+                "Stanovnistvo": 10932
+            },
+            {
+                "Županija": "Splitsko-dalmatinska",
+                "Sjedište": "Split",
+                "Površina (km2)": 4534,
+                "Stanovnistvo": 455242
+            },
+            {
+                "Županija": "Zadarska",
+                "Sjedište": "Zadar",
+                "Površina (km2)": 3642,
+                "Stanovnistvo": 170398
+            },
+            {
+                "Županija": "Krapinsko-zagorska",
+                "Sjedište": "Krapina",
+                "Površina (km2)": 1224,
+                "Stanovnistvo": 133064
+            },
+            {
+                "Županija": "Karlovačka",
+                "Sjedište": "Karlovac",
+                "Površina (km2)": 3622,
+                "Stanovnistvo": 128749
+            },
+            {
+                "Županija": "Ličko-senjska",
+                "Sjedište": "Gospić",
+                "Površina (km2)": 535,
+                "Stanovnistvo": 51022
+            },
+            {
+                "Županija": "Primorsko-goranska",
+                "Sjedište": "Rijeka",
+                "Površina (km2)": 3582,
+                "Stanovnistvo": 310195
+            },
+            {
+                "Županija": "Sisačko-moslavačka",
+                "Sjedište": "Sisak",
+                "Površina (km2)": 4463,
+                "Stanovnistvo": 172977
+            },
+            {
+                "Županija": "Zagrebačka",
+                "Sjedište": "Zagreb",
+                "Površina (km2)": 3078,
+                "Stanovnistvo": 317642
+            },
+            {
+                "Županija": "Grad Zagreb",
+                "Sjedište": "Zagreb",
+                "Površina (km2)": 641,
+                "Stanovnistvo": 792875
+            },
+            {
+                "Županija": "Istarska",
+                "Sjedište": "Pazin",
+                "Površina (km2)": 282,
+                "Stanovnistvo": 20844
+            },
+            {
+                "Županija": "Brodsko-posavska",
+                "Sjedište": "Slavonski Brod",
+                "Površina (km2)": 2043,
+                "Stanovnistvo": 158559
+            },
+            {
+                "Županija": "Osječko-baranjska",
+                "Sjedište": "Osijek",
+                "Površina (km2)": 4152,
+                "Stanovnistvo": 304899
+            },
+            {
+                "Županija": "Požeško-slavonska",
+                "Sjedište": "Požega",
+                "Površina (km2)": 1845,
+                "Stanovnistvo": 78031
+            },
+            {
+                "Županija": "Vukovarsko-srijemska",
+                "Sjedište": "Vukovar",
+                "Površina (km2)": 2448,
+                "Stanovnistvo": 180117
+            },
+            {
+                "Županija": "Virovitičko-podravska",
+                "Sjedište": "Virovitica",
+                "Površina (km2)": 2068,
+                "Stanovnistvo": 84586
+            },
+            {
+                "Županija": "Bjelovarsko-bilogorska",
+                "Sjedište": "Bjelovar",
+                "Površina (km2)": 2652,
+                "Stanovnistvo": 119743
+            },
+            {
+                "Županija": "Koprivničko-križevačka",
+                "Sjedište": "Koprivnica",
+                "Površina (km2)": 1746,
+                "Stanovnistvo": 115582
+            },
+            {
+                "Županija": "Međimurska",
+                "Sjedište": "Čakovec",
+                "Površina (km2)": 730,
+                "Stanovnistvo": 114414
+            },
+            {
+                "Županija": "Varaždinska",
+                "Sjedište": "Varaždin",
+                "Površina (km2)": 1261,
+                "Stanovnistvo": 176046
+            }
+        ];
+        var width = 900;
+        var height = 900;
+        var centered;
+        var projection = d3.geoAlbers().parallels([40, 50])
+            .center([0.5, 44.5])
+            .rotate([-16, 0])
+            .scale(10000)
+            .translate([width / 2, height / 2]);
+        var path = d3.geoPath().projection(projection);
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .style("background", "lightgray");
+
+        var tooltip = d3.select("body")
+            .append("div")
+            .style("opacity", 0)
+            .style("width", 600)
+            .style("display", "inline-block");
+
+        var counties = svg.append("g");
+
+        function onZoomEnd(d) {
+            tooltip.transition()
+                .duration(1000)
+                .style("opacity", 0);
+        }
+
+        fetch("cro_regv3.json")
+            .then(response => response.json())
+            .then(json => {
+                var data = topojson.feature(json, json.objects.layer1);
+                var states = counties.selectAll("path.county")
+                    .data(data.features)
+                    .enter()
+                    .append("path")
+                    .attr("class", "county")
+                    .attr("id", function (d) { return d.id; })
+                    .attr("d", path)
+                    .style("fill", "lightblue")
+                    .style("stroke", "navy")
+                    .style("stroke-width", 1)
+                    .style("stroke-opacity", 1)
+                    .on("click", function (d, i) {
+                        console.log("Clicked on " + d.properties.name);
+                        var x, y, k;
+                        var centroid = path.centroid(d);
+                        x = centroid[0];
+                        y = centroid[1];
+                        k = 4;
+                        centered = d;
+
+                        var tooltip_tip = "<h4>" + d.properties.name + "</h4>" +
+                            "<p>Površina: " + hr_stats[i]["Površina (km2)"] + " km^2</p>" +
+                            "<p>Stanovništvo: " + hr_stats[i]["Stanovnistvo"] + "</p>";
+                        tooltip.html(tooltip_tip);
+
+                        tooltip.transition()
+                            .duration(100)
+                            .style("opacity", 1);
+
+                        console.log("X:" + x);
+                        console.log("Y:" + y);
+                        counties.transition()
+                            .duration(1000)
+                            .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
+                            .transition()
+                            .duration(10000)
+                            .transition()
+                            .duration(1000)
+                            .attr("transform", "translate(0,0) scale(1)")
+                            .on("end", onZoomEnd);
+
+                    });
+            });
+    </script>
+</body>
+
+</html>

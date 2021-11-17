@@ -1,0 +1,38 @@
+<!--
+    Napisati kod koji će pomoću biblioteke D3 primjenom SVG transformacija translatirati umetnuti
+    pravokutnik iz položaja (0, 0) u položaj (width(SVG) – width(rect), height(SVG) − height(rect)),
+    ali na način da se pravokutnik translatira prvo u smjeru x-osi, a potom u smjeru y-osi.
+    Trajanje svake translacije treba biti 1 s.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z3-3</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <script>
+        svg = d3.select("body")
+            .append("svg")
+            .attr("width", 800)
+            .attr("height", 800)
+            .style("background-color", "lightblue");
+        
+        rect = svg.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", 200)
+            .attr("height", 200)
+            .style("fill", "green");
+        
+        rect.transition()
+            .duration(1000)
+            .attr("x", svg.attr("width") - rect.attr("width"))
+            .transition()
+            .duration(1000)
+            .attr("y", svg.attr("height") - rect.attr("height"));
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!--
+    -Napisati kod koji će unutar SVG elementa umetnuti kružnicu.
+    -Kružnica treba biti bez ispune(engl.fill) s obrubom (engl.stroke) u boji.
+    -Nakon 3 s potrebno je pokrenuti tranziciju koja će dodati ispunu tijekom perioda od 5 s.
+    -Nakon završetka ispunjavanja kružnice potrebno je pokrenuti novu tranziciju koja će povećati radijus do
+     vrijednosti width(SVG)/2, a pri tome istovremeno smanjivati parametar opacity do vrijednosti 0.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z3-1</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+    <script>
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width","800")
+            .attr("height","800")
+            .style("background-color","lightblue");
+        
+        var circle = svg.append("circle")
+            .attr("cx","200")
+            .attr("cy","200")
+            .attr("r","100")
+            .style("fill-opacity","0")
+            .style("stroke","red")
+            .style("stroke-width","3");
+        
+        circle.transition()
+            .duration(3000)
+            .style("fill-opacity","0")
+            .transition()
+            .duration(5000)
+            .style("fill-opacity","1")
+            .transition()
+            .duration(3000)
+            .attr("r",svg.attr("width")/2)
+            .style("fill-opacity","0");
+    </script>
+</body>
+</html>
